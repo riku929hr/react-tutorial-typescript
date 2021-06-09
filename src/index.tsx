@@ -2,14 +2,18 @@ import { VFC } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-const Square: VFC = () => (
+type SquareProps = {
+  value: number;
+};
+
+const Square: VFC<SquareProps> = ({ value }) => (
   <button type="button" className="square">
-    {/* TODO */}
+    {value}
   </button>
 );
 
 const Board: VFC = () => {
-  const renderSquare: VFC = () => <Square />;
+  const renderSquare = (i: number) => <Square value={i} />;
 
   const status = 'Next player: X';
 
