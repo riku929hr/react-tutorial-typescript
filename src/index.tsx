@@ -1,4 +1,4 @@
-import { VFC } from 'react';
+import { VFC, useState } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
@@ -6,17 +6,22 @@ type SquareProps = {
   value: number;
 };
 
-const Square: VFC<SquareProps> = ({ value }) => (
-  <button
-    type="button"
-    className="square"
-    onClick={() => {
-      alert('click');
-    }}
-  >
-    {value}
-  </button>
-);
+const Square: VFC<SquareProps> = () => {
+  const [value, setValue] = useState<string | null>(null);
+  // useState(' ')でもOKだが、チュートリアルに合わせてnullが代入できるように型を設定する
+
+  return (
+    <button
+      type="button"
+      className="square"
+      onClick={() => {
+        setValue('X');
+      }}
+    >
+      {value}
+    </button>
+  );
+};
 
 const Board: VFC = () => {
   const renderSquare = (i: number) => <Square value={i} />;
