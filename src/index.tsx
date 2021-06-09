@@ -7,7 +7,13 @@ type SquareProps = {
 };
 
 const Square: VFC<SquareProps> = ({ value }) => (
-  <button type="button" className="square">
+  <button
+    type="button"
+    className="square"
+    onClick={() => {
+      alert('click');
+    }}
+  >
     {value}
   </button>
 );
