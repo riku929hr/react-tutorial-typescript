@@ -1,30 +1,38 @@
-import { VFC, useState } from 'react';
+import { VFC, useState, ReactElement } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-type SquareProps = {
-  value: number;
+// Squareの中身の型、XかOか空（null）の3通り
+type FillSquare = 'X' | 'O' | null;
+
+// Squareコンポーネントの型
+type Square = {
+  value: FillSquare;
+  onClick: () => void;
 };
 
-const Square: VFC<SquareProps> = () => {
-  const [value, setValue] = useState<string | null>(null);
-  // useState(' ')でもOKだが、チュートリアルに合わせてnullが代入できるように型を設定する
+const Square: VFC<Square> = (props) => {
+  const { value, onClick } = props;
 
   return (
-    <button
-      type="button"
-      className="square"
-      onClick={() => {
-        setValue('X');
-      }}
-    >
+    <button type="button" className="square" onClick={onClick}>
       {value}
     </button>
   );
 };
 
 const Board: VFC = () => {
-  const renderSquare = (i: number) => <Square value={i} />;
+  const [squares, setSquares] = useState<FillSquare[]>(Array(9).fill(null));
+
+  const handleClick = (i: number): void => {
+    const squaresSlice = squares.slice();
+    squaresSlice[i] = 'X';
+    setSquares(squaresSlice);
+  };
+
+  const renderSquare = (i: number): ReactElement => (
+    <Square value={squares[i]} onClick={() => handleClick(i)} />
+  );
 
   const status = 'Next player: X';
 
