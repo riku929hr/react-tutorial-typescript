@@ -23,18 +23,20 @@ const Square: VFC<Square> = (props) => {
 
 const Board: VFC = () => {
   const [squares, setSquares] = useState<FillSquare[]>(Array(9).fill(null));
+  const [xIsNext, setXIsNext] = useState<boolean>(true);
 
   const handleClick = (i: number): void => {
     const squaresSlice = squares.slice();
-    squaresSlice[i] = 'X';
+    squaresSlice[i] = xIsNext ? 'X' : 'O';
     setSquares(squaresSlice);
+    setXIsNext((c) => !c);
   };
 
   const renderSquare = (i: number): ReactElement => (
     <Square value={squares[i]} onClick={() => handleClick(i)} />
   );
 
-  const status = 'Next player: X';
+  const status = `Next player: ${xIsNext ? 'X' : 'O'}`;
 
   return (
     <div>
