@@ -11,6 +11,27 @@ type Square = {
   onClick: () => void;
 };
 
+const calculateWinner = (squares: FillSquare[]) => {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i += 1) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+
+  return null;
+};
+
 const Square: VFC<Square> = (props) => {
   const { value, onClick } = props;
 
@@ -27,6 +48,12 @@ const Board: VFC = () => {
 
   const handleClick = (i: number): void => {
     const squaresSlice = squares.slice();
+
+    // 勝者確定かマスが埋まっていたら、クリックしてもマスが変化しないようにする
+    if (calculateWinner(squares) || squaresSlice[i]) {
+      return;
+    }
+
     squaresSlice[i] = xIsNext ? 'X' : 'O';
     setSquares(squaresSlice);
     setXIsNext((c) => !c);
@@ -36,7 +63,10 @@ const Board: VFC = () => {
     <Square value={squares[i]} onClick={() => handleClick(i)} />
   );
 
-  const status = `Next player: ${xIsNext ? 'X' : 'O'}`;
+  const winner = calculateWinner(squares);
+  const status = winner
+    ? `Winner: ${winner}`
+    : `Next player: ${xIsNext ? 'X' : 'O'}`;
 
   return (
     <div>
