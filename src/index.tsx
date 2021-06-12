@@ -5,10 +5,14 @@ import './index.css';
 // Squareの中身の型、XかOか空（null）の3通り
 type FillSquare = 'X' | 'O' | null;
 
-// Squareコンポーネントの型
-type Square = {
+type SquareProps = {
   value: FillSquare;
   onClick: () => void;
+};
+
+type BoardProps = {
+  squares: FillSquare[];
+  onClick: (i: number) => void;
 };
 
 const calculateWinner = (squares: FillSquare[]) => {
@@ -32,7 +36,7 @@ const calculateWinner = (squares: FillSquare[]) => {
   return null;
 };
 
-const Square: VFC<Square> = (props) => {
+const Square: VFC<SquareProps> = (props) => {
   const { value, onClick } = props;
 
   return (
@@ -42,35 +46,15 @@ const Square: VFC<Square> = (props) => {
   );
 };
 
-const Board: VFC = () => {
-  const [squares, setSquares] = useState<FillSquare[]>(Array(9).fill(null));
-  const [xIsNext, setXIsNext] = useState<boolean>(true);
-
-  const handleClick = (i: number): void => {
-    const squaresSlice = squares.slice();
-
-    // 勝者確定かマスが埋まっていたら、クリックしてもマスが変化しないようにする
-    if (calculateWinner(squares) || squaresSlice[i]) {
-      return;
-    }
-
-    squaresSlice[i] = xIsNext ? 'X' : 'O';
-    setSquares(squaresSlice);
-    setXIsNext((c) => !c);
-  };
+const Board: VFC<BoardProps> = (props) => {
+  const { squares, onClick } = props;
 
   const renderSquare = (i: number): ReactElement => (
-    <Square value={squares[i]} onClick={() => handleClick(i)} />
+    <Square value={squares[i]} onClick={() => onClick(i)} />
   );
-
-  const winner = calculateWinner(squares);
-  const status = winner
-    ? `Winner: ${winner}`
-    : `Next player: ${xIsNext ? 'X' : 'O'}`;
 
   return (
     <div>
-      <div className="status">{status}</div>
       <div className="board-row">
         {renderSquare(0)}
         {renderSquare(1)}
@@ -90,17 +74,48 @@ const Board: VFC = () => {
   );
 };
 
-const Game: VFC = () => (
-  <div className="game">
-    <div className="game-board">
-      <Board />
+const Game: VFC = () => {
+  const [history, setHistory] = useState([{ squares: Array(9).fill(null) }]);
+  const [xIsNext, setXIsNext] = useState(true);
+
+  const handleClick = (i: number): void => {
+    const current = history[history.length - 1];
+    const squaresSlice = current.squares.slice();
+
+    // 勝者確定かマスが埋まっていたら、クリックしてもマスが変化しないようにする
+    if (calculateWinner(squaresSlice) || squaresSlice[i]) {
+      return;
+    }
+
+    squaresSlice[i] = xIsNext ? 'X' : 'O';
+    setHistory(
+      history.concat([
+        {
+          squares: squaresSlice,
+        },
+      ]),
+    );
+    setXIsNext(!xIsNext);
+  };
+
+  const current = history[history.length - 1];
+  const winner = calculateWinner(current.squares);
+  const status = winner
+    ? `Winner: ${winner}`
+    : `Next player: ${xIsNext ? 'X' : 'O'}`;
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board squares={current.squares} onClick={(i) => handleClick(i)} />
+      </div>
+      <div className="game-info">
+        <div>{status}</div>
+        <ol>{/* TODO */}</ol>
+      </div>
     </div>
-    <div className="game-info">
-      <div>{/* status */}</div>
-      <ol>{/* TODO */}</ol>
-    </div>
-  </div>
-);
+  );
+};
 
 // ========================================
 
