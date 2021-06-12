@@ -76,30 +76,46 @@ const Board: VFC<BoardProps> = (props) => {
 
 const Game: VFC = () => {
   const [history, setHistory] = useState([{ squares: Array(9).fill(null) }]);
+  const [stepNumber, setStepNumber] = useState(0);
   const [xIsNext, setXIsNext] = useState(true);
 
   const handleClick = (i: number): void => {
-    const current = history[history.length - 1];
-    const squaresSlice = current.squares.slice();
+    const historySlice = history.slice(0, stepNumber + 1);
+    const current = historySlice[historySlice.length - 1];
+    const squares = current.squares.slice();
 
     // 勝者確定かマスが埋まっていたら、クリックしてもマスが変化しないようにする
-    if (calculateWinner(squaresSlice) || squaresSlice[i]) {
+    if (calculateWinner(squares) || squares[i]) {
       return;
     }
 
-    squaresSlice[i] = xIsNext ? 'X' : 'O';
-    setHistory(
-      history.concat([
-        {
-          squares: squaresSlice,
-        },
-      ]),
-    );
+    squares[i] = xIsNext ? 'X' : 'O';
+    setHistory([...historySlice, { squares }]);
+    setStepNumber(historySlice.length);
     setXIsNext(!xIsNext);
   };
 
-  const current = history[history.length - 1];
+  const jumpTo = (step: number) => {
+    setStepNumber(step);
+    setXIsNext(step % 2 === 0);
+  };
+
+  const currentHistory = [...history];
+  const current = currentHistory[stepNumber];
   const winner = calculateWinner(current.squares);
+
+  const moves = history.map((step, move) => {
+    const desc = move ? `Go to move #${move}` : 'Go to game start';
+
+    return (
+      <li key={move.toString()}>
+        <button type="button" onClick={() => jumpTo(move)}>
+          {desc}
+        </button>
+      </li>
+    );
+  });
+
   const status = winner
     ? `Winner: ${winner}`
     : `Next player: ${xIsNext ? 'X' : 'O'}`;
@@ -111,7 +127,7 @@ const Game: VFC = () => {
       </div>
       <div className="game-info">
         <div>{status}</div>
-        <ol>{/* TODO */}</ol>
+        <ol>{moves}</ol>
       </div>
     </div>
   );
